@@ -15,6 +15,8 @@ const env = {
   productionFallbackBaseUrl: "http://8.137.192.209",
   sessionSecret: process.env.SESSION_SECRET || "change-this-session-secret",
   cookieSecure: process.env.COOKIE_SECURE === "true",
+  cookieSameSite: normalizeSameSite(process.env.COOKIE_SAME_SITE || "lax"),
+  corsOrigins: normalizeCorsOrigins(process.env.CORS_ORIGINS),
   sessionCookieName: "image_service_session",
   sessionMaxAgeMs: 12 * 60 * 60 * 1000,
   maxImageSize: 5 * 1024 * 1024
@@ -26,6 +28,26 @@ function normalizeBaseUrl(value) {
   }
 
   return value.trim().replace(/\/+$/, "");
+}
+
+function normalizeCorsOrigins(value) {
+  if (!value) {
+    return [];
+  }
+
+  return value
+    .split(",")
+    .map((origin) => origin.trim().replace(/\/+$/, ""))
+    .filter(Boolean);
+}
+
+function normalizeSameSite(value) {
+  const normalized = String(value).trim().toLowerCase();
+  if (["lax", "strict", "none"].includes(normalized)) {
+    return normalized;
+  }
+
+  return "lax";
 }
 
 function loadDotEnv(filePath) {

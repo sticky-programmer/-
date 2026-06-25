@@ -5,6 +5,7 @@ const path = require("path");
 const { env } = require("./config/env");
 const { paths } = require("./config/paths");
 const { requireAuth } = require("./middleware/auth");
+const { corsMiddleware } = require("./middleware/cors");
 const { errorHandler } = require("./middleware/errorHandler");
 const adminRoutes = require("./routes/admin.routes");
 const authRoutes = require("./routes/auth.routes");
@@ -14,6 +15,7 @@ function createApp() {
   const app = express();
 
   app.set("trust proxy", 1);
+  app.use(corsMiddleware);
   app.use(compression());
   app.use(express.json({ limit: "64kb" }));
   app.use(express.urlencoded({ extended: false, limit: "64kb" }));

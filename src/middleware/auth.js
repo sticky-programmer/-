@@ -75,7 +75,7 @@ function verifySessionToken(token) {
 function setSessionCookie(res, token) {
   res.cookie(env.sessionCookieName, token, {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: env.cookieSameSite,
     secure: env.cookieSecure,
     maxAge: env.sessionMaxAgeMs,
     path: "/"
@@ -85,7 +85,7 @@ function setSessionCookie(res, token) {
 function clearSessionCookie(res) {
   res.clearCookie(env.sessionCookieName, {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: env.cookieSameSite,
     secure: env.cookieSecure,
     path: "/"
   });
