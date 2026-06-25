@@ -1,7 +1,7 @@
 const { env } = require("../config/env");
 
 const defaultAllowedMethods = "GET,POST,PUT,PATCH,DELETE,OPTIONS";
-const defaultAllowedHeaders = "Content-Type,Authorization,X-Requested-With";
+const defaultAllowedHeaders = "Content-Type,Authorization,X-Requested-With,KEY";
 
 function corsMiddleware(req, res, next) {
   const requestOrigin = req.headers.origin;

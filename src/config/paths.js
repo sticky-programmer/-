@@ -9,6 +9,7 @@ const paths = {
   uploadDir: path.join(env.rootDir, "uploads"),
   imageUploadDir: path.join(env.rootDir, "uploads", "images"),
   imageIndexFile: path.join(env.rootDir, "data", "images.json"),
+  settingsFile: path.join(env.rootDir, "data", "settings.json"),
   userFile: path.join(env.rootDir, "data", "users.json")
 };
 

@@ -9,6 +9,9 @@ const logoutButton = document.querySelector("#logoutButton");
 const uploadForm = document.querySelector("#uploadForm");
 const imageInput = document.querySelector("#imageInput");
 const fileNameText = document.querySelector("#fileNameText");
+const apiKeyForm = document.querySelector("#apiKeyForm");
+const apiKeyInput = document.querySelector("#apiKeyInput");
+const apiKeyStatus = document.querySelector("#apiKeyStatus");
 const searchInput = document.querySelector("#searchInput");
 const gallery = document.querySelector("#gallery");
 const statusText = document.querySelector("#statusText");
@@ -99,6 +102,29 @@ uploadForm.addEventListener("submit", async (event) => {
   }
 });
 
+apiKeyForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const key = apiKeyInput.value.trim();
+  if (key.length < 12) {
+    setStatus("API key must be at least 12 characters.", true);
+    return;
+  }
+
+  try {
+    const status = await request("/api/admin/api-key", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key })
+    });
+    apiKeyForm.reset();
+    renderApiKeyStatus(status);
+    setStatus("API key updated.");
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+});
+
 searchInput.addEventListener("input", () => {
   renderImages();
 });
@@ -112,6 +138,7 @@ async function init() {
     const data = await request("/api/auth/me");
     currentUser = data.user;
     showApp();
+    await loadApiKeyStatus();
     await loadImages();
   } catch {
     showLogin();
@@ -139,6 +166,23 @@ async function loadImages({ silent = false } = {}) {
       showLogin();
     }
   }
+}
+
+async function loadApiKeyStatus() {
+  try {
+    const status = await request("/api/admin/api-key");
+    renderApiKeyStatus(status);
+  } catch (error) {
+    apiKeyStatus.textContent = currentUser && currentUser.role === "admin"
+      ? error.message
+      : "Only admins can manage the API key.";
+  }
+}
+
+function renderApiKeyStatus(status) {
+  apiKeyStatus.textContent = status.enabled
+    ? `Enabled. Last updated: ${formatDate(status.updatedAt)}`
+    : "Not enabled. Set a key to allow external calls with the KEY header.";
 }
 
 function renderImages() {
@@ -282,6 +326,14 @@ function formatBytes(value) {
   }
 
   return `${size.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "never";
+  }
+
+  return new Date(value).toLocaleString();
 }
 
 init();

@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 
 const { env } = require("../config/env");
+const { verifyApiKey } = require("../services/apiKey.service");
 const { findUserById } = require("../services/user.service");
 
 async function requireAuth(req, res, next) {
@@ -8,21 +9,31 @@ async function requireAuth(req, res, next) {
     const token = readCookie(req, env.sessionCookieName);
     const session = verifySessionToken(token);
 
-    if (!session) {
-      return res.status(401).json({ error: "Please login first." });
+    if (session) {
+      const user = await findUserById(session.userId);
+      if (user) {
+        req.user = {
+          id: user.id,
+          username: user.username,
+          role: user.role,
+          authType: "cookie"
+        };
+        return next();
+      }
     }
 
-    const user = await findUserById(session.userId);
-    if (!user) {
-      return res.status(401).json({ error: "Please login first." });
+    const apiKey = req.get("KEY");
+    if (await verifyApiKey(apiKey)) {
+      req.user = {
+        id: "api-key",
+        username: "api-key",
+        role: "api",
+        authType: "api-key"
+      };
+      return next();
     }
 
-    req.user = {
-      id: user.id,
-      username: user.username,
-      role: user.role
-    };
-    next();
+    return res.status(401).json({ error: "Please login first or provide a valid KEY header." });
   } catch (error) {
     next(error);
   }

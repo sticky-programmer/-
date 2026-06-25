@@ -1,11 +1,13 @@
 const { createApp } = require("./app");
 const { env } = require("./config/env");
+const { ensureApiKeySettings } = require("./services/apiKey.service");
 const { ensureStorage } = require("./services/image.service");
 const { ensureInitialAdmin } = require("./services/user.service");
 
 async function bootstrap() {
   await ensureStorage();
   await ensureInitialAdmin();
+  await ensureApiKeySettings();
 
   const app = createApp();
 

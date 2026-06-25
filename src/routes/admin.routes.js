@@ -1,6 +1,7 @@
 const express = require("express");
 
 const { requireAdmin } = require("../middleware/auth");
+const { getApiKeyStatus, updateApiKey } = require("../services/apiKey.service");
 const { createUser, listUsers } = require("../services/user.service");
 const { asyncHandler } = require("../utils/asyncHandler");
 
@@ -35,6 +36,15 @@ router.post("/users", requireAdmin, asyncHandler(async (req, res) => {
     role: user.role,
     createdAt: user.createdAt
   });
+}));
+
+router.get("/api-key", requireAdmin, asyncHandler(async (req, res) => {
+  res.json(await getApiKeyStatus());
+}));
+
+router.put("/api-key", requireAdmin, asyncHandler(async (req, res) => {
+  const { key } = req.body;
+  res.json(await updateApiKey(key));
 }));
 
 module.exports = router;

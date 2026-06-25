@@ -116,11 +116,42 @@ input[type="search"] {
   padding: 16px;
 }
 
-.upload-form {
+.settings-band {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e3e8f0;
+  border-radius: 8px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(220px, 1fr) minmax(260px, 520px);
+  margin-top: 14px;
+  padding: 16px;
+}
+
+.settings-band h2 {
+  font-size: 18px;
+  line-height: 1.3;
+  margin: 0 0 4px;
+}
+
+.settings-band p {
+  color: #5d6b7d;
+  margin: 0;
+}
+
+.upload-form,
+.api-key-form {
   align-items: center;
   display: grid;
   gap: 12px;
+}
+
+.upload-form {
   grid-template-columns: auto minmax(160px, 1fr) auto;
+}
+
+.api-key-form {
+  grid-template-columns: minmax(180px, 1fr) auto;
 }
 
 .file-picker input {
@@ -274,6 +305,8 @@ dd {
 @media (max-width: 760px) {
   .toolbar,
   .upload-form,
+  .settings-band,
+  .api-key-form,
   .list-tools {
     align-items: stretch;
     grid-template-columns: 1fr;

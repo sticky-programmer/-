@@ -49,6 +49,17 @@
           </form>
         </section>
 
+        <section class="settings-band" aria-label="API key settings">
+          <div>
+            <h2>Header API Key</h2>
+            <p id="apiKeyStatus">Loading API key status...</p>
+          </div>
+          <form id="apiKeyForm" class="api-key-form">
+            <input id="apiKeyInput" name="key" type="password" autocomplete="new-password" minlength="12" placeholder="New API key, at least 12 characters" required>
+            <button type="submit">Save key</button>
+          </form>
+        </section>
+
         <section class="list-tools" aria-label="Image search">
           <input id="searchInput" type="search" placeholder="Search by filename or ID">
           <span id="statusText" aria-live="polite">Loading images...</span>
