@@ -12,10 +12,6 @@ function getBaseUrl(req) {
     return env.baseUrl;
   }
 
-  if (env.nodeEnv === "production") {
-    return env.productionFallbackBaseUrl;
-  }
-
   return `${req.protocol}://${req.get("host")}`;
 }
 

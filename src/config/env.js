@@ -13,7 +13,6 @@ const env = {
   adminPassword: process.env.ADMIN_PASSWORD || "admin123456",
   apiKey: process.env.API_KEY || "",
   baseUrl: normalizeBaseUrl(process.env.BASE_URL),
-  productionFallbackBaseUrl: "http://8.137.192.209",
   sessionSecret: process.env.SESSION_SECRET || "change-this-session-secret",
   cookieSecure: process.env.COOKIE_SECURE === "true",
   cookieSameSite: normalizeSameSite(process.env.COOKIE_SAME_SITE || "lax"),

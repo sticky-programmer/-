@@ -100,7 +100,7 @@ CORS_ORIGINS=http://8.137.192.209,http://localhost:5173,http://127.0.0.1:5173
 | `ADMIN_USERNAME` | 初始管理员账号 |
 | `ADMIN_PASSWORD` | 初始管理员密码 |
 | `API_KEY` | 初始请求头密钥，可为空 |
-| `BASE_URL` | 返回图片绝对 URL 时使用的服务地址 |
+| `BASE_URL` | 返回图片绝对 URL 时使用的服务地址；为空时会自动使用当前请求的协议、IP/域名和端口 |
 | `SESSION_SECRET` | cookie 登录签名密钥，生产环境必须改成随机长字符串 |
 | `COOKIE_SECURE` | HTTPS 环境设为 `true`，HTTP 环境设为 `false` |
 | `COOKIE_SAME_SITE` | cookie SameSite 策略，可选 `lax`、`strict`、`none` |
@@ -746,6 +746,12 @@ BASE_URL=http://8.137.192.209
 
 ```env
 BASE_URL=http://8.137.192.209:3000
+```
+
+也可以不设置 `BASE_URL`，服务会根据当前请求自动返回带端口的地址，例如：
+
+```txt
+http://8.137.192.209:3000/uploads/images/uuid.webp
 ```
 
 ## 运行时文件说明
