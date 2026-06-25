@@ -4,6 +4,7 @@ const loginForm = document.querySelector("#loginForm");
 const usernameInput = document.querySelector("#usernameInput");
 const passwordInput = document.querySelector("#passwordInput");
 const userText = document.querySelector("#userText");
+const refreshButton = document.querySelector("#refreshButton");
 const logoutButton = document.querySelector("#logoutButton");
 const uploadForm = document.querySelector("#uploadForm");
 const imageInput = document.querySelector("#imageInput");
@@ -21,8 +22,12 @@ const detailSize = document.querySelector("#detailSize");
 const detailCompress = document.querySelector("#detailCompress");
 const detailUrl = document.querySelector("#detailUrl");
 
+const maxImageSize = 5 * 1024 * 1024;
+const autoRefreshMs = 15000;
+
 let images = [];
 let currentUser = null;
+let refreshTimer = null;
 
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -46,16 +51,21 @@ loginForm.addEventListener("submit", async (event) => {
   }
 });
 
+refreshButton.addEventListener("click", async () => {
+  await loadImages();
+});
+
 logoutButton.addEventListener("click", async () => {
-  await fetch("/api/auth/logout", { method: "POST" });
+  await fetch("/api/auth/logout", { method: "POST", cache: "no-store" });
   currentUser = null;
   images = [];
+  stopAutoRefresh();
   showLogin();
 });
 
 imageInput.addEventListener("change", () => {
   const file = imageInput.files[0];
-  fileNameText.textContent = file ? file.name : "未选择文件";
+  fileNameText.textContent = file ? file.name : "No file selected";
 });
 
 uploadForm.addEventListener("submit", async (event) => {
@@ -63,12 +73,12 @@ uploadForm.addEventListener("submit", async (event) => {
 
   const file = imageInput.files[0];
   if (!file) {
-    setStatus("请选择一张图片。", true);
+    setStatus("Please choose an image.", true);
     return;
   }
 
-  if (file.size > 5 * 1024 * 1024) {
-    setStatus("图片不能超过 5MB。", true);
+  if (file.size > maxImageSize) {
+    setStatus("Image size must not exceed 5MB.", true);
     return;
   }
 
@@ -81,8 +91,8 @@ uploadForm.addEventListener("submit", async (event) => {
       body: formData
     });
     uploadForm.reset();
-    fileNameText.textContent = "未选择文件";
-    setStatus("图片上传成功。");
+    fileNameText.textContent = "No file selected";
+    setStatus("Image uploaded.");
     await loadImages();
   } catch (error) {
     setStatus(error.message, true);
@@ -108,14 +118,23 @@ async function init() {
   }
 }
 
-async function loadImages() {
+async function loadImages({ silent = false } = {}) {
   try {
-    setStatus("正在载入图片...");
+    if (!silent) {
+      setStatus("Loading images...");
+    }
+
     images = await request("/api/images");
     renderImages();
-    setStatus(images.length ? `共 ${images.length} 张图片。` : "还没有图片，先上传一张。");
+
+    if (!silent) {
+      setStatus(images.length ? `${images.length} images.` : "No images yet.");
+    }
   } catch (error) {
-    setStatus(error.message, true);
+    if (!silent) {
+      setStatus(error.message, true);
+    }
+
     if (/login/i.test(error.message)) {
       showLogin();
     }
@@ -143,7 +162,7 @@ function renderImages() {
     const meta = card.querySelector("p");
 
     link.href = image.url;
-    img.src = image.url;
+    img.src = `${image.url}?v=${encodeURIComponent(image.createdAt)}`;
     img.alt = image.originalName;
     title.textContent = image.originalName;
     meta.textContent = `${formatBytes(image.originalSize)} -> ${formatBytes(image.compressedSize)}`;
@@ -154,18 +173,18 @@ function renderImages() {
 
     card.querySelector('[data-action="copy"]').addEventListener("click", async () => {
       await navigator.clipboard.writeText(image.url);
-      setStatus("图片地址已复制。");
+      setStatus("Image URL copied.");
     });
 
     card.querySelector('[data-action="delete"]').addEventListener("click", async () => {
-      const confirmed = window.confirm(`确认删除「${image.originalName}」吗？`);
+      const confirmed = window.confirm(`Delete "${image.originalName}"?`);
       if (!confirmed) {
         return;
       }
 
       try {
         await request(`/api/images/${image.id}`, { method: "DELETE" });
-        setStatus("图片已删除。");
+        setStatus("Image deleted.");
         await loadImages();
       } catch (error) {
         setStatus(error.message, true);
@@ -176,16 +195,16 @@ function renderImages() {
   }
 
   if (keyword && visibleImages.length === 0) {
-    setStatus("没有匹配的图片。");
+    setStatus("No matching images.");
   }
 }
 
 function showDetail(image) {
-  detailImage.src = image.url;
+  detailImage.src = `${image.url}?v=${encodeURIComponent(image.createdAt)}`;
   detailImage.alt = image.originalName;
   detailId.textContent = image.id;
   detailName.textContent = image.originalName;
-  detailSize.textContent = image.width && image.height ? `${image.width} x ${image.height}` : "未知";
+  detailSize.textContent = image.width && image.height ? `${image.width} x ${image.height}` : "Unknown";
   detailCompress.textContent = `${formatBytes(image.originalSize)} -> ${formatBytes(image.compressedSize)}`;
   detailUrl.href = image.url;
   detailUrl.textContent = image.url;
@@ -193,7 +212,10 @@ function showDetail(image) {
 }
 
 async function request(url, options = {}) {
-  const response = await fetch(url, options);
+  const response = await fetch(url, {
+    cache: "no-store",
+    ...options
+  });
 
   if (response.status === 204) {
     return null;
@@ -201,15 +223,17 @@ async function request(url, options = {}) {
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(data.error || "请求失败。");
+    throw new Error(data.error || "Request failed.");
   }
 
   return data;
 }
 
 function showLogin(message = "") {
+  stopAutoRefresh();
   loginView.hidden = false;
   appView.hidden = true;
+
   if (message) {
     passwordInput.setCustomValidity(message);
     passwordInput.reportValidity();
@@ -220,7 +244,22 @@ function showLogin(message = "") {
 function showApp() {
   loginView.hidden = true;
   appView.hidden = false;
-  userText.textContent = currentUser ? `已登录：${currentUser.username}` : "已登录";
+  userText.textContent = currentUser ? `Signed in as ${currentUser.username}` : "Signed in";
+  startAutoRefresh();
+}
+
+function startAutoRefresh() {
+  stopAutoRefresh();
+  refreshTimer = window.setInterval(() => {
+    loadImages({ silent: true });
+  }, autoRefreshMs);
+}
+
+function stopAutoRefresh() {
+  if (refreshTimer) {
+    window.clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
 }
 
 function setStatus(message, isError = false) {

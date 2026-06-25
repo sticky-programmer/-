@@ -102,6 +102,12 @@ input[type="search"] {
   justify-content: space-between;
 }
 
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .upload-band {
   background: #fff;
   border: 1px solid #e3e8f0;

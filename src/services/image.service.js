@@ -18,12 +18,12 @@ async function ensureStorage() {
 }
 
 async function listImages() {
-  const images = await readImages();
+  const images = await readSyncedImages();
   return images.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 async function findImage(id) {
-  const images = await readImages();
+  const images = await readSyncedImages();
   return images.find((image) => image.id === id);
 }
 
@@ -88,6 +88,23 @@ async function readImages() {
   return JSON.parse(content);
 }
 
+async function readSyncedImages() {
+  const images = await readImages();
+  const existingImages = [];
+
+  for (const image of images) {
+    if (await imageFileExists(image.fileName)) {
+      existingImages.push(image);
+    }
+  }
+
+  if (existingImages.length !== images.length) {
+    await writeImages(existingImages);
+  }
+
+  return existingImages;
+}
+
 async function writeImages(images) {
   await fs.mkdir(paths.dataDir, { recursive: true });
   await fs.writeFile(paths.imageIndexFile, JSON.stringify(images, null, 2));
@@ -104,6 +121,19 @@ async function removeImageFile(fileName) {
     if (error.code !== "ENOENT") {
       throw error;
     }
+  }
+}
+
+async function imageFileExists(fileName) {
+  if (!fileName || path.basename(fileName) !== fileName) {
+    return false;
+  }
+
+  try {
+    await fs.access(path.join(paths.imageUploadDir, fileName));
+    return true;
+  } catch {
+    return false;
   }
 }
 

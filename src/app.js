@@ -20,8 +20,12 @@ function createApp() {
 
   app.use(express.static(paths.publicDir));
   app.use("/uploads/images", express.static(paths.imageUploadDir, {
-    immutable: true,
-    maxAge: "7d"
+    etag: true,
+    lastModified: true,
+    maxAge: 0,
+    setHeaders: (res) => {
+      res.setHeader("Cache-Control", "no-cache");
+    }
   }));
 
   app.get("/", (req, res) => {
