@@ -3,16 +3,19 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Image Service</title>
+    <title>Image Service Console</title>
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
     <main class="shell">
       <section id="loginView" class="auth-panel" hidden>
         <form id="loginForm" class="login-form">
-          <div>
-            <h1>Image Service</h1>
-            <p>Sign in to upload and manage server images.</p>
+          <div class="brand-lockup">
+            <span class="brand-mark">IS</span>
+            <div>
+              <h1>Image Service</h1>
+              <p>Server image console</p>
+            </div>
           </div>
           <label>
             Username
@@ -26,57 +29,110 @@
         </form>
       </section>
 
-      <section id="appView" hidden>
-        <header class="toolbar">
-          <div>
-            <h1>Image Manager</h1>
-            <p id="userText">Signed in</p>
+      <section id="appView" class="console" hidden>
+        <aside class="sidebar" aria-label="Primary navigation">
+          <div class="brand-lockup">
+            <span class="brand-mark">IS</span>
+            <div>
+              <strong>Image Service</strong>
+              <small>Management console</small>
+            </div>
           </div>
-          <div class="toolbar-actions">
-            <button id="refreshButton" type="button" class="secondary">Refresh</button>
-            <button id="logoutButton" type="button" class="secondary">Sign out</button>
-          </div>
-        </header>
 
-        <section class="upload-band" aria-label="Image upload">
-          <form id="uploadForm" class="upload-form">
-            <label class="file-picker">
-              <input id="imageInput" name="image" type="file" accept="image/*" required>
-              <span>Choose image</span>
-            </label>
-            <span id="fileNameText" class="file-name">No file selected</span>
-            <button type="submit">Upload image</button>
-          </form>
+          <nav class="nav-list">
+            <button class="nav-item active" type="button" data-view="imagesView">Images</button>
+            <button class="nav-item" type="button" data-view="settingsView">Settings</button>
+          </nav>
+        </aside>
+
+        <section class="workspace">
+          <header class="topbar">
+            <div>
+              <h1 id="pageTitle">Images</h1>
+              <p id="userText">Signed in</p>
+            </div>
+            <div class="toolbar-actions">
+              <button id="refreshButton" type="button" class="secondary">Refresh</button>
+              <button id="logoutButton" type="button" class="secondary">Sign out</button>
+            </div>
+          </header>
+
+          <p id="statusText" class="status-line" aria-live="polite">Loading images...</p>
+
+          <section id="imagesView" class="view active">
+            <section class="summary-strip" aria-label="Image summary">
+              <div class="metric">
+                <span>Total images</span>
+                <strong id="imageCount">0</strong>
+              </div>
+              <div class="metric">
+                <span>Stored size</span>
+                <strong id="storedSize">0 B</strong>
+              </div>
+              <div class="metric">
+                <span>Upload limit</span>
+                <strong>5 MB</strong>
+              </div>
+            </section>
+
+            <section class="tool-panel" aria-label="Image upload">
+              <div class="panel-heading">
+                <h2>Upload</h2>
+                <p>Images are compressed and stored as WebP files.</p>
+              </div>
+              <form id="uploadForm" class="upload-form">
+                <label class="file-picker">
+                  <input id="imageInput" name="image" type="file" accept="image/*" required>
+                  <span>Choose image</span>
+                </label>
+                <span id="fileNameText" class="file-name">No file selected</span>
+                <button type="submit">Upload</button>
+              </form>
+            </section>
+
+            <section class="library-head" aria-label="Image search">
+              <div>
+                <h2>Library</h2>
+                <p>Server files are checked when the list refreshes.</p>
+              </div>
+              <input id="searchInput" type="search" placeholder="Search by filename or ID">
+            </section>
+
+            <section id="gallery" class="gallery" aria-label="Image list"></section>
+          </section>
+
+          <section id="settingsView" class="view">
+            <section class="settings-grid">
+              <section class="tool-panel" aria-label="API key settings">
+                <div class="panel-heading">
+                  <h2>Header API Key</h2>
+                  <p id="apiKeyStatus">Loading API key status...</p>
+                </div>
+                <form id="apiKeyForm" class="stack-form">
+                  <label>
+                    Current key
+                    <input id="apiKeyInput" name="key" type="text" autocomplete="off" minlength="12" placeholder="API key, at least 12 characters" required>
+                  </label>
+                  <button type="submit">Save key</button>
+                </form>
+              </section>
+
+              <section class="tool-panel" aria-label="CORS settings">
+                <div class="panel-heading">
+                  <h2>CORS Origins</h2>
+                  <p id="corsStatus">Loading CORS settings...</p>
+                </div>
+                <form id="corsForm" class="stack-form">
+                  <label>
+                    Allowed origins
+                    <textarea id="corsInput" name="origins" rows="6" placeholder="One origin per line, for example:&#10;http://8.137.192.209:5173&#10;http://your-frontend.com"></textarea>
+                  </label>
+                  <button type="submit">Save origins</button>
+                </form>
+              </section>
+            </section>
+          </section>
         </section>
-
-        <section class="settings-band" aria-label="API key settings">
-          <div>
-            <h2>Header API Key</h2>
-            <p id="apiKeyStatus">Loading API key status...</p>
-          </div>
-          <form id="apiKeyForm" class="api-key-form">
-            <input id="apiKeyInput" name="key" type="password" autocomplete="new-password" minlength="12" placeholder="New API key, at least 12 characters" required>
-            <button type="submit">Save key</button>
-          </form>
-        </section>
-
-        <section class="settings-band" aria-label="CORS settings">
-          <div>
-            <h2>CORS Origins</h2>
-            <p id="corsStatus">Loading CORS settings...</p>
-          </div>
-          <form id="corsForm" class="cors-form">
-            <textarea id="corsInput" name="origins" rows="3" placeholder="One origin per line, for example:&#10;http://8.137.192.209:5173&#10;http://your-frontend.com"></textarea>
-            <button type="submit">Save origins</button>
-          </form>
-        </section>
-
-        <section class="list-tools" aria-label="Image search">
-          <input id="searchInput" type="search" placeholder="Search by filename or ID">
-          <span id="statusText" aria-live="polite">Loading images...</span>
-        </section>
-
-        <section id="gallery" class="gallery" aria-label="Image list"></section>
       </section>
     </main>
 

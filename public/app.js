@@ -3,6 +3,9 @@ const appView = document.querySelector("#appView");
 const loginForm = document.querySelector("#loginForm");
 const usernameInput = document.querySelector("#usernameInput");
 const passwordInput = document.querySelector("#passwordInput");
+const navItems = document.querySelectorAll(".nav-item");
+const views = document.querySelectorAll(".view");
+const pageTitle = document.querySelector("#pageTitle");
 const userText = document.querySelector("#userText");
 const refreshButton = document.querySelector("#refreshButton");
 const logoutButton = document.querySelector("#logoutButton");
@@ -18,6 +21,8 @@ const corsStatus = document.querySelector("#corsStatus");
 const searchInput = document.querySelector("#searchInput");
 const gallery = document.querySelector("#gallery");
 const statusText = document.querySelector("#statusText");
+const imageCount = document.querySelector("#imageCount");
+const storedSize = document.querySelector("#storedSize");
 const template = document.querySelector("#imageCardTemplate");
 const detailDialog = document.querySelector("#detailDialog");
 const closeDetail = document.querySelector("#closeDetail");
@@ -35,6 +40,12 @@ let images = [];
 let currentUser = null;
 let refreshTimer = null;
 
+navItems.forEach((item) => {
+  item.addEventListener("click", () => {
+    setActiveView(item.dataset.view);
+  });
+});
+
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -51,6 +62,8 @@ loginForm.addEventListener("submit", async (event) => {
     currentUser = data.user;
     loginForm.reset();
     showApp();
+    await loadApiKeyStatus();
+    await loadCorsSettings();
     await loadImages();
   } catch (error) {
     showLogin(error.message);
@@ -177,6 +190,7 @@ async function loadImages({ silent = false } = {}) {
     }
 
     images = await request("/api/images");
+    updateSummary();
     renderImages();
 
     if (!silent) {
@@ -216,9 +230,16 @@ async function loadCorsSettings() {
 }
 
 function renderApiKeyStatus(status) {
-  apiKeyStatus.textContent = status.enabled
-    ? `Enabled. Last updated: ${formatDate(status.updatedAt)}`
-    : "Not enabled. Set a key to allow external calls with the KEY header.";
+  apiKeyInput.value = status.key || "";
+
+  if (!status.enabled) {
+    apiKeyStatus.textContent = "Not enabled. Set a key to allow external calls with the KEY header.";
+    return;
+  }
+
+  apiKeyStatus.textContent = status.key
+    ? `Current key: ${status.key}. Last updated: ${formatDate(status.updatedAt)}`
+    : "Enabled, but the current key was created by an older version and cannot be displayed. Set a new key to manage it here.";
 }
 
 function renderCorsSettings(settings) {
@@ -287,6 +308,11 @@ function renderImages() {
   }
 }
 
+function updateSummary() {
+  imageCount.textContent = String(images.length);
+  storedSize.textContent = formatBytes(images.reduce((sum, image) => sum + (image.compressedSize || 0), 0));
+}
+
 function showDetail(image) {
   detailImage.src = `${image.url}?v=${encodeURIComponent(image.createdAt)}`;
   detailImage.alt = image.originalName;
@@ -333,7 +359,20 @@ function showApp() {
   loginView.hidden = true;
   appView.hidden = false;
   userText.textContent = currentUser ? `Signed in as ${currentUser.username}` : "Signed in";
+  setActiveView("imagesView");
   startAutoRefresh();
+}
+
+function setActiveView(viewId) {
+  views.forEach((view) => {
+    view.classList.toggle("active", view.id === viewId);
+  });
+
+  navItems.forEach((item) => {
+    item.classList.toggle("active", item.dataset.view === viewId);
+  });
+
+  pageTitle.textContent = viewId === "settingsView" ? "Settings" : "Images";
 }
 
 function startAutoRefresh() {

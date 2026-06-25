@@ -832,6 +832,7 @@ fetch(url, {
 - 生产环境必须修改 `SESSION_SECRET`
 - `ADMIN_PASSWORD` 不要使用默认值
 - Header API Key 至少 12 位，建议使用随机长字符串
+- 管理员 UI 可以查看和修改当前 Header API Key。为了支持查看，密钥明文会保存在服务器本地 `data/settings.json`，不要公开这个文件。
 - 不建议长期使用 `CORS Origins = *`
 - 如果开放公网访问，建议使用 HTTPS
 - 不要把 `data/users.json`、`data/settings.json`、`uploads/` 上传到 GitHub

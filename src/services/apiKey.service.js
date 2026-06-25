@@ -24,6 +24,7 @@ async function getApiKeyStatus() {
 
   return {
     enabled: Boolean(settings.apiKeyHash),
+    key: settings.apiKeyValue || "",
     updatedAt: settings.apiKeyUpdatedAt || null
   };
 }
@@ -38,6 +39,7 @@ async function updateApiKey(apiKey) {
   }
 
   const settings = await readSettings();
+  settings.apiKeyValue = normalizedKey;
   settings.apiKeySalt = crypto.randomBytes(16).toString("base64url");
   settings.apiKeyHash = hashApiKey(normalizedKey, settings.apiKeySalt);
   settings.apiKeyUpdatedAt = new Date().toISOString();
@@ -98,6 +100,7 @@ async function writeSettings(settings) {
 
 async function buildInitialSettings() {
   const settings = {
+    apiKeyValue: "",
     apiKeySalt: "",
     apiKeyHash: "",
     apiKeyUpdatedAt: null,
@@ -106,6 +109,7 @@ async function buildInitialSettings() {
   };
 
   if (env.apiKey) {
+    settings.apiKeyValue = env.apiKey;
     settings.apiKeySalt = crypto.randomBytes(16).toString("base64url");
     settings.apiKeyHash = hashApiKey(env.apiKey, settings.apiKeySalt);
     settings.apiKeyUpdatedAt = new Date().toISOString();
@@ -116,6 +120,7 @@ async function buildInitialSettings() {
 
 function migrateSettings(settings) {
   return {
+    apiKeyValue: settings.apiKeyValue || env.apiKey || "",
     apiKeySalt: settings.apiKeySalt || "",
     apiKeyHash: settings.apiKeyHash || "",
     apiKeyUpdatedAt: settings.apiKeyUpdatedAt || null,
