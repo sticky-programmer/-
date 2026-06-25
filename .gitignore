@@ -1,0 +1,9 @@
+node_modules/
+uploads/
+data/*.json
+.agents/
+.codex/
+outputs/
+work/
+.env
+*.log

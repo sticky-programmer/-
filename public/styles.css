@@ -1,0 +1,285 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f7fa;
+  color: #172033;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 8px;
+  background: #1769e0;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 42px;
+  padding: 0 16px;
+}
+
+button:hover {
+  background: #0e58c6;
+}
+
+button.secondary {
+  background: #e8edf5;
+  color: #172033;
+}
+
+button.danger {
+  background: #c43636;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="search"] {
+  border: 1px solid #c9d3e1;
+  border-radius: 8px;
+  min-height: 42px;
+  padding: 0 12px;
+  width: 100%;
+}
+
+.shell {
+  margin: 0 auto;
+  max-width: 1180px;
+  padding: 32px 20px 48px;
+}
+
+.auth-panel {
+  display: grid;
+  min-height: calc(100vh - 80px);
+  place-items: center;
+}
+
+.login-form {
+  background: #fff;
+  border: 1px solid #e3e8f0;
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgb(23 32 51 / 10%);
+  display: grid;
+  gap: 18px;
+  max-width: 390px;
+  padding: 28px;
+  width: 100%;
+}
+
+.login-form h1,
+.toolbar h1 {
+  font-size: 30px;
+  line-height: 1.15;
+  margin: 0 0 8px;
+}
+
+.login-form p,
+.toolbar p {
+  color: #5d6b7d;
+  margin: 0;
+}
+
+.login-form label {
+  color: #4d5c70;
+  display: grid;
+  gap: 8px;
+}
+
+.toolbar {
+  align-items: center;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.upload-band {
+  background: #fff;
+  border: 1px solid #e3e8f0;
+  border-radius: 8px;
+  margin-top: 24px;
+  padding: 16px;
+}
+
+.upload-form {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: auto minmax(160px, 1fr) auto;
+}
+
+.file-picker input {
+  block-size: 1px;
+  inline-size: 1px;
+  opacity: 0;
+  position: absolute;
+}
+
+.file-picker span {
+  align-items: center;
+  background: #e8edf5;
+  border-radius: 8px;
+  color: #172033;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 700;
+  min-height: 42px;
+  padding: 0 16px;
+}
+
+.file-name,
+.list-tools span {
+  color: #5d6b7d;
+  overflow-wrap: anywhere;
+}
+
+.list-tools {
+  align-items: center;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(220px, 360px) minmax(160px, 1fr);
+  padding: 24px 0 14px;
+}
+
+.gallery {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+}
+
+.image-card {
+  background: #fff;
+  border: 1px solid #e3e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(23 32 51 / 8%);
+  overflow: hidden;
+}
+
+.image-link {
+  aspect-ratio: 4 / 3;
+  background: #dfe6ef;
+  display: block;
+  overflow: hidden;
+}
+
+.image-link img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.image-info {
+  padding: 14px 14px 4px;
+}
+
+.image-info h2 {
+  font-size: 16px;
+  line-height: 1.35;
+  margin: 0 0 6px;
+  overflow-wrap: anywhere;
+}
+
+.image-info p {
+  color: #69788c;
+  font-size: 13px;
+  margin: 0;
+}
+
+.card-actions {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 14px;
+}
+
+.card-actions button {
+  border-radius: 6px;
+  font-size: 13px;
+  min-height: 36px;
+  padding: 0 8px;
+}
+
+dialog {
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 18px 60px rgb(23 32 51 / 24%);
+  max-width: 720px;
+  width: calc(100% - 32px);
+}
+
+dialog::backdrop {
+  background: rgb(23 32 51 / 42%);
+}
+
+.detail-panel {
+  display: grid;
+  gap: 18px;
+  padding: 8px;
+}
+
+.detail-panel img {
+  border-radius: 8px;
+  display: block;
+  max-height: 420px;
+  object-fit: contain;
+  width: 100%;
+}
+
+dl {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+dl div {
+  display: grid;
+  gap: 6px;
+}
+
+dt {
+  color: #5d6b7d;
+  font-size: 13px;
+}
+
+dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: end;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .toolbar,
+  .upload-form,
+  .list-tools {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    display: grid;
+  }
+
+  .upload-form button,
+  .file-picker span {
+    justify-content: center;
+    width: 100%;
+  }
+}

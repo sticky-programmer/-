@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>图片管理服务</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section id="loginView" class="auth-panel" hidden>
+        <form id="loginForm" class="login-form">
+          <div>
+            <h1>图片管理服务</h1>
+            <p>登录后上传和管理服务器上的图片。</p>
+          </div>
+          <label>
+            账号
+            <input id="usernameInput" name="username" type="text" autocomplete="username" required>
+          </label>
+          <label>
+            密码
+            <input id="passwordInput" name="password" type="password" autocomplete="current-password" required>
+          </label>
+          <button type="submit">登录</button>
+        </form>
+      </section>
+
+      <section id="appView" hidden>
+        <header class="toolbar">
+          <div>
+            <h1>图片管理</h1>
+            <p id="userText">已登录</p>
+          </div>
+          <button id="logoutButton" type="button" class="secondary">退出登录</button>
+        </header>
+
+        <section class="upload-band" aria-label="图片上传">
+          <form id="uploadForm" class="upload-form">
+            <label class="file-picker">
+              <input id="imageInput" name="image" type="file" accept="image/*" required>
+              <span>选择图片</span>
+            </label>
+            <span id="fileNameText" class="file-name">未选择文件</span>
+            <button type="submit">上传图片</button>
+          </form>
+        </section>
+
+        <section class="list-tools" aria-label="图片查询">
+          <input id="searchInput" type="search" placeholder="按文件名或 ID 查询">
+          <span id="statusText" aria-live="polite">正在载入图片...</span>
+        </section>
+
+        <section id="gallery" class="gallery" aria-label="图片列表"></section>
+      </section>
+    </main>
+
+    <dialog id="detailDialog">
+      <div class="detail-panel">
+        <img id="detailImage" alt="">
+        <dl>
+          <div>
+            <dt>ID</dt>
+            <dd id="detailId"></dd>
+          </div>
+          <div>
+            <dt>原始文件</dt>
+            <dd id="detailName"></dd>
+          </div>
+          <div>
+            <dt>图片尺寸</dt>
+            <dd id="detailSize"></dd>
+          </div>
+          <div>
+            <dt>压缩结果</dt>
+            <dd id="detailCompress"></dd>
+          </div>
+          <div>
+            <dt>访问地址</dt>
+            <dd><a id="detailUrl" target="_blank" rel="noreferrer"></a></dd>
+          </div>
+        </dl>
+        <div class="dialog-actions">
+          <button id="closeDetail" type="button" class="secondary">关闭</button>
+        </div>
+      </div>
+    </dialog>
+
+    <template id="imageCardTemplate">
+      <article class="image-card">
+        <a class="image-link" target="_blank" rel="noreferrer">
+          <img alt="">
+        </a>
+        <div class="image-info">
+          <h2></h2>
+          <p></p>
+        </div>
+        <div class="card-actions">
+          <button type="button" data-action="detail">详情</button>
+          <button type="button" data-action="copy">复制地址</button>
+          <button type="button" data-action="delete" class="danger">删除</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
