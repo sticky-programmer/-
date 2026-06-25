@@ -1,7 +1,12 @@
 const express = require("express");
 
 const { requireAdmin } = require("../middleware/auth");
-const { getApiKeyStatus, updateApiKey } = require("../services/apiKey.service");
+const {
+  getApiKeyStatus,
+  getCorsSettings,
+  updateApiKey,
+  updateCorsOrigins
+} = require("../services/apiKey.service");
 const { createUser, listUsers } = require("../services/user.service");
 const { asyncHandler } = require("../utils/asyncHandler");
 
@@ -45,6 +50,15 @@ router.get("/api-key", requireAdmin, asyncHandler(async (req, res) => {
 router.put("/api-key", requireAdmin, asyncHandler(async (req, res) => {
   const { key } = req.body;
   res.json(await updateApiKey(key));
+}));
+
+router.get("/cors", requireAdmin, asyncHandler(async (req, res) => {
+  res.json(await getCorsSettings());
+}));
+
+router.put("/cors", requireAdmin, asyncHandler(async (req, res) => {
+  const { origins } = req.body;
+  res.json(await updateCorsOrigins(origins));
 }));
 
 module.exports = router;

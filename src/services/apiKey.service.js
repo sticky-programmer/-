@@ -9,6 +9,11 @@ async function ensureApiKeySettings() {
 
   try {
     await fs.access(paths.settingsFile);
+    const settings = JSON.parse(await fs.readFile(paths.settingsFile, "utf8"));
+    const migratedSettings = migrateSettings(settings);
+    if (JSON.stringify(settings) !== JSON.stringify(migratedSettings)) {
+      await writeSettings(migratedSettings);
+    }
   } catch {
     await writeSettings(await buildInitialSettings());
   }
@@ -41,6 +46,30 @@ async function updateApiKey(apiKey) {
   return getApiKeyStatus();
 }
 
+async function getCorsSettings() {
+  const settings = await readSettings();
+
+  return {
+    origins: settings.corsOrigins,
+    updatedAt: settings.corsUpdatedAt || null
+  };
+}
+
+async function getCorsOrigins() {
+  const settings = await readSettings();
+  return settings.corsOrigins;
+}
+
+async function updateCorsOrigins(origins) {
+  const normalizedOrigins = normalizeCorsOrigins(origins);
+  const settings = await readSettings();
+  settings.corsOrigins = normalizedOrigins;
+  settings.corsUpdatedAt = new Date().toISOString();
+  await writeSettings(settings);
+
+  return getCorsSettings();
+}
+
 async function verifyApiKey(apiKey) {
   const normalizedKey = normalizeApiKey(apiKey);
   if (!normalizedKey) {
@@ -71,7 +100,9 @@ async function buildInitialSettings() {
   const settings = {
     apiKeySalt: "",
     apiKeyHash: "",
-    apiKeyUpdatedAt: null
+    apiKeyUpdatedAt: null,
+    corsOrigins: env.corsOrigins,
+    corsUpdatedAt: null
   };
 
   if (env.apiKey) {
@@ -81,6 +112,16 @@ async function buildInitialSettings() {
   }
 
   return settings;
+}
+
+function migrateSettings(settings) {
+  return {
+    apiKeySalt: settings.apiKeySalt || "",
+    apiKeyHash: settings.apiKeyHash || "",
+    apiKeyUpdatedAt: settings.apiKeyUpdatedAt || null,
+    corsOrigins: Array.isArray(settings.corsOrigins) ? settings.corsOrigins : env.corsOrigins,
+    corsUpdatedAt: settings.corsUpdatedAt || null
+  };
 }
 
 function hashApiKey(apiKey, salt) {
@@ -98,6 +139,27 @@ function normalizeApiKey(apiKey) {
   return apiKey.trim();
 }
 
+function normalizeCorsOrigins(origins) {
+  const rawOrigins = Array.isArray(origins)
+    ? origins
+    : String(origins || "").split(/[\n,]/);
+
+  const normalized = [];
+
+  for (const origin of rawOrigins) {
+    const value = String(origin || "").trim().replace(/\/+$/, "");
+    if (!value || normalized.includes(value)) {
+      continue;
+    }
+
+    if (value === "*" || /^https?:\/\/[^/\s]+$/i.test(value)) {
+      normalized.push(value);
+    }
+  }
+
+  return normalized;
+}
+
 function safeEqual(left, right) {
   const leftBuffer = Buffer.from(left || "");
   const rightBuffer = Buffer.from(right || "");
@@ -111,7 +173,10 @@ function safeEqual(left, right) {
 
 module.exports = {
   ensureApiKeySettings,
+  getCorsOrigins,
+  getCorsSettings,
   getApiKeyStatus,
+  updateCorsOrigins,
   updateApiKey,
   verifyApiKey
 };

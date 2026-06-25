@@ -60,6 +60,17 @@
           </form>
         </section>
 
+        <section class="settings-band" aria-label="CORS settings">
+          <div>
+            <h2>CORS Origins</h2>
+            <p id="corsStatus">Loading CORS settings...</p>
+          </div>
+          <form id="corsForm" class="cors-form">
+            <textarea id="corsInput" name="origins" rows="3" placeholder="One origin per line, for example:&#10;http://8.137.192.209:5173&#10;http://your-frontend.com"></textarea>
+            <button type="submit">Save origins</button>
+          </form>
+        </section>
+
         <section class="list-tools" aria-label="Image search">
           <input id="searchInput" type="search" placeholder="Search by filename or ID">
           <span id="statusText" aria-live="polite">Loading images...</span>

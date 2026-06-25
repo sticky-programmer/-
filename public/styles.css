@@ -44,12 +44,26 @@ button.danger {
 
 input[type="text"],
 input[type="password"],
-input[type="search"] {
+input[type="search"],
+textarea {
   border: 1px solid #c9d3e1;
   border-radius: 8px;
-  min-height: 42px;
   padding: 0 12px;
   width: 100%;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="search"] {
+  min-height: 42px;
+}
+
+textarea {
+  line-height: 1.45;
+  min-height: 86px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  resize: vertical;
 }
 
 .shell {
@@ -140,7 +154,8 @@ input[type="search"] {
 }
 
 .upload-form,
-.api-key-form {
+.api-key-form,
+.cors-form {
   align-items: center;
   display: grid;
   gap: 12px;
@@ -151,6 +166,10 @@ input[type="search"] {
 }
 
 .api-key-form {
+  grid-template-columns: minmax(180px, 1fr) auto;
+}
+
+.cors-form {
   grid-template-columns: minmax(180px, 1fr) auto;
 }
 
@@ -307,6 +326,7 @@ dd {
   .upload-form,
   .settings-band,
   .api-key-form,
+  .cors-form,
   .list-tools {
     align-items: stretch;
     grid-template-columns: 1fr;

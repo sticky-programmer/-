@@ -12,6 +12,9 @@ const fileNameText = document.querySelector("#fileNameText");
 const apiKeyForm = document.querySelector("#apiKeyForm");
 const apiKeyInput = document.querySelector("#apiKeyInput");
 const apiKeyStatus = document.querySelector("#apiKeyStatus");
+const corsForm = document.querySelector("#corsForm");
+const corsInput = document.querySelector("#corsInput");
+const corsStatus = document.querySelector("#corsStatus");
 const searchInput = document.querySelector("#searchInput");
 const gallery = document.querySelector("#gallery");
 const statusText = document.querySelector("#statusText");
@@ -125,6 +128,27 @@ apiKeyForm.addEventListener("submit", async (event) => {
   }
 });
 
+corsForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const origins = corsInput.value
+    .split(/\n|,/)
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  try {
+    const settings = await request("/api/admin/cors", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ origins })
+    });
+    renderCorsSettings(settings);
+    setStatus("CORS origins updated.");
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+});
+
 searchInput.addEventListener("input", () => {
   renderImages();
 });
@@ -139,6 +163,7 @@ async function init() {
     currentUser = data.user;
     showApp();
     await loadApiKeyStatus();
+    await loadCorsSettings();
     await loadImages();
   } catch {
     showLogin();
@@ -179,10 +204,29 @@ async function loadApiKeyStatus() {
   }
 }
 
+async function loadCorsSettings() {
+  try {
+    const settings = await request("/api/admin/cors");
+    renderCorsSettings(settings);
+  } catch (error) {
+    corsStatus.textContent = currentUser && currentUser.role === "admin"
+      ? error.message
+      : "Only admins can manage CORS origins.";
+  }
+}
+
 function renderApiKeyStatus(status) {
   apiKeyStatus.textContent = status.enabled
     ? `Enabled. Last updated: ${formatDate(status.updatedAt)}`
     : "Not enabled. Set a key to allow external calls with the KEY header.";
+}
+
+function renderCorsSettings(settings) {
+  const origins = settings.origins || [];
+  corsInput.value = origins.join("\n");
+  corsStatus.textContent = origins.length
+    ? `${origins.length} allowed origin${origins.length > 1 ? "s" : ""}. Last updated: ${formatDate(settings.updatedAt)}`
+    : "No origins allowed yet. Add your frontend origin here.";
 }
 
 function renderImages() {

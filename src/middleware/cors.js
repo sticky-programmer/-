@@ -1,39 +1,43 @@
-const { env } = require("../config/env");
+const { getCorsOrigins } = require("../services/apiKey.service");
 
 const defaultAllowedMethods = "GET,POST,PUT,PATCH,DELETE,OPTIONS";
 const defaultAllowedHeaders = "Content-Type,Authorization,X-Requested-With,KEY";
 
-function corsMiddleware(req, res, next) {
-  const requestOrigin = req.headers.origin;
-  const allowedOrigin = getAllowedOrigin(requestOrigin);
+async function corsMiddleware(req, res, next) {
+  try {
+    const requestOrigin = req.headers.origin;
+    const allowedOrigin = await getAllowedOrigin(requestOrigin);
 
-  if (allowedOrigin) {
-    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Vary", appendVary(res.getHeader("Vary"), "Origin"));
+    if (allowedOrigin) {
+      res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader("Vary", appendVary(res.getHeader("Vary"), "Origin"));
+    }
+
+    res.setHeader("Access-Control-Allow-Methods", defaultAllowedMethods);
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      req.headers["access-control-request-headers"] || defaultAllowedHeaders
+    );
+    res.setHeader("Access-Control-Max-Age", "86400");
+
+    if (req.method === "OPTIONS") {
+      return res.status(204).end();
+    }
+
+    next();
+  } catch (error) {
+    next(error);
   }
-
-  res.setHeader("Access-Control-Allow-Methods", defaultAllowedMethods);
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    req.headers["access-control-request-headers"] || defaultAllowedHeaders
-  );
-  res.setHeader("Access-Control-Max-Age", "86400");
-
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-
-  next();
 }
 
-function getAllowedOrigin(requestOrigin) {
+async function getAllowedOrigin(requestOrigin) {
   if (!requestOrigin) {
     return "";
   }
 
   const normalizedOrigin = requestOrigin.replace(/\/+$/, "");
-  const allowedOrigins = env.corsOrigins;
+  const allowedOrigins = await getCorsOrigins();
 
   if (allowedOrigins.includes("*")) {
     return normalizedOrigin;
